@@ -1,2 +1,2 @@
-# maianne
-MaiaScript Neural Network Engine
+# MaiaNNE
+MaiaScript Neural Network Engine.

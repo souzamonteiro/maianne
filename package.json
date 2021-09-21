@@ -1,0 +1,38 @@
+{
+    "name": "maianne",
+    "version": "1.0.0",
+    "description": "MaiaScript Neural Network Engine.",
+    "keywords": [
+        "maia",
+        "maiascript",
+        "scientific computing",
+        "artificial intelligence",
+        "neural network",
+        "perceptron",
+        "learning matrix"
+    ],
+    "author": "The MaiaScript Team (https://www.maiascript.com)",
+    "license": "Apache-2.0",
+    "homepage": "https://www.maiascript.com",
+    "bugs": {
+        "url": "https://github.com/souzamonteiro/maianne/issues"
+    },
+    "main": "bin/maianne.js",
+    "bin": {
+        "maiascript": "./bin/maianne.js"
+    },
+    "dependencies": {
+        "maiascript-cli": "^3.3.2"
+    },
+    "scripts": {
+        "build": "./build.sh",
+        "test": "./test.sh"
+    },
+    "directories": {
+        "example": "examples"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/souzamonteiro/maianne.git"
+    }
+}
