@@ -3,10 +3,9 @@
 rm -rf build/*
 rm -rf docs/*
 
-cat src/Shebang.js js/libmaia.js src/maianne.js > build/maianne.js
+cp src/maianne.maia build/
 
-cp build/maianne.js js/
-cp build/maianne.js bin/
+cp build/maianne.maia bin/
 
 chmod 755 bin/*
 
