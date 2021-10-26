@@ -37,22 +37,16 @@ namespace maiaApp {
             command = "node"
             
             fs = system.require("fs")
+
+            realPath = fs.realpathSync(system.argv[0])
+            filePath = realPath.split("/")
+            filePath = core.slice(filePath, 0, filePath.length - 2)
+            filePath = filePath.join("/")
+            this.scriptPath = filePath
+            this.cnaLibrary = this.scriptPath + "/maia/cna/cna.maia"
+            system.source(this.cnaLibrary)
+            
             readTextFile = fs.readFileSync
-
-            function getRealPath (error, realPath) {
-                if (error) {
-                    system.log(error)
-                } else {
-                    filePath = realPath.split("/")
-                    filePath = core.slice(filePath, 0, filePath.length - 2)
-                    filePath = filePath.join("/")
-                    this.scriptPath = filePath
-                    this.cnaLibrary = this.scriptPath + "/maia/cna/cna.maia"
-                    system.source(this.cnaLibrary)
-                }
-            }
-
-            fs.realpath(system.argv[0], {"encoding": "utf8"}, getRealPath)
 
             // Read file callback.
             function readFile(input) {
@@ -209,7 +203,7 @@ namespace maiaApp {
                             "networkGlobalEfficiency": 0
                         }
                         property.adj = ann.createANN(topology, vertices, edges, probability, avgdeg, ni, no, nl, nhu)
-                        fileContents = cna.createPajekFile(property.adj, "arcs")
+                        fileContents = global.cna.createPajekFile(property.adj, "arcs")
 
                         // Sets the output file.
                         if (outputFile == "") {
