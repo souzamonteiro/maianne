@@ -106,28 +106,28 @@ namespace maiaApp {
                         topology = system.argv[i]
                     } elseif (system.argv[i] == "--vertices") {
                         i = i + 1
-                        vertices = system.argv[i]
+                        vertices = core.toNumber(system.argv[i])
                     } elseif (system.argv[i] == "--edges") {
                         i = i + 1
-                        edges = system.argv[i]
+                        edges = core.toNumber(system.argv[i])
                     } elseif (system.argv[i] == "--probability") {
                         i = i + 1
-                        probability = system.argv[i]
+                        probability = core.toNumber(system.argv[i])
                     } elseif (system.argv[i] == "--avgdeg") {
                         i = i + 1
-                        avgdeg = system.argv[i]
+                        avgdeg = core.toNumber(system.argv[i])
                     } elseif (system.argv[i] == "--ni") {
                         i = i + 1
-                        ni = system.argv[i]
+                        ni = core.toNumber(system.argv[i])
                     } elseif (system.argv[i] == "--no") {
                         i = i + 1
-                        no = system.argv[i]
+                        no = core.toNumber(system.argv[i])
                     } elseif (system.argv[i] == "--nl") {
                         i = i + 1
-                        nl = system.argv[i]
+                        nl = core.toNumber(system.argv[i])
                     } elseif (system.argv[i] == "--nhu") {
                         i = i + 1
-                        nhu = system.argv[i]
+                        nhu = core.toNumber(system.argv[i])
                     } else {
                         inputFile = system.argv[i]
                         break
@@ -203,7 +203,7 @@ namespace maiaApp {
                             "networkGlobalEfficiency": 0
                         }
                         property.adj = ann.createANN(topology, vertices, edges, probability, avgdeg, ni, no, nl, nhu)
-                        fileContents = global.cna.createPajekFile(property.adj, "arcs")
+                        fileContents = cna.createPajekFile(property.adj, "arcs")
 
                         // Sets the output file.
                         if (outputFile == "") {
