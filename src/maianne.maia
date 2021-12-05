@@ -62,6 +62,28 @@ namespace maiaApp {
             // Command line options.
             inputFile = ""
             outputFile = ""
+            report_file = "report.txt"
+            csvFile = "noname"
+            correctnessFile = "noname"
+            annFile = "noname"
+            annOutputFile = "noname"
+            annOutputFileType = "edges"
+            itsFile = "noname"
+            otsFile = "noname"
+            skipFirst = false
+            separator = ","
+            lRate = 0.45
+            activationFunction = "logistic"
+            outputLayerActivationFunction = "logistic"
+            outputFunction = "step"
+            ofc = [1, 0]
+            allowLoops = false
+            prepare = false
+            negativeWeights = false
+            maxEpochs = 1
+            minimumCorrectness = 1.0
+            interval = 0
+            
             createANN = false
             topology = "mlp"
             vertices = 0
@@ -72,6 +94,12 @@ namespace maiaApp {
             no = 0
             nl = 0
             nhu = 0
+            prefix = "sample"
+            nFiles = 1
+            indexFrom = 1
+            indexTo = 1
+            indexIn = 1
+            
             
             // Get command line arguments.
             if (system.argc > 1) {
@@ -83,6 +111,27 @@ namespace maiaApp {
                         system.log("Options:")
                         system.log("-h     --help               Displays this help message;")
                         system.log("-o     [output file]        Output file name.")
+                        system.log("-t                          Network output file type (default=edges).")
+                        system.log("-r                          Statistics report file.")
+                        system.log("-c                          Statistics CSV file.")
+                        system.log("       --cf                 Correctness CSV file.")
+                        system.log("       --ann                The artificial neural network file.")
+                        system.log("       --annout             The artificial neural network output file.")
+                        system.log("       --its                Input training set file.")
+                        system.log("       --ots                Output training set file.")
+                        system.log("       --skipfirst          Skip first line of input and output training set files.")
+                        system.log("       --separator          Training set files column separator(default=,).")
+                        system.log("       --lrate              Learning rate (default=0.45).")
+                        system.log("       --af                 Activation function (default=logistic).")
+                        system.log("       --oaf                Output layer activation function (default=logistic).")
+                        system.log("       --of                 Output function(default=step).")
+                        system.log("       --ofc                Output function coefficients.")
+                        system.log("       --loops              Allow loops in network(biases).")
+                        system.log("       --prepare            Prepare the artificil neural network to learning.")
+                        system.log("       --nw                 Allow initial negative weights.")
+                        system.log("       --epochs             Max number of epochs to learning.")
+                        system.log("       --correct            Target correctness.")
+                        system.log("       --interval           Epochs interval to show the learning progress.")
                         system.log("       --create.            Create an artificial neural network.")
                         system.log("       --topology.          Create an artificial neural network.")
                         system.log("       --vertices.          Number of vertices.")
@@ -93,10 +142,74 @@ namespace maiaApp {
                         system.log("       --no.                Number of output neurons.")
                         system.log("       --nl.                Number of layers")
                         system.log("       --nhu.               Number of hidden units.")
+                        system.log("       --prefix             prefix for multiple neural network files (default=sample).")
+                        system.log("       --nfiles             Number of files for multiple neural network files.")
+                        system.log("       --from               First file index for multiple neural network files.")
+                        system.log("       --to                 Last file index for multiple neural network files.")
+                        system.log("       --in                 Total number of files in the file set.")
                         process.exit(0)
                     } elseif (system.argv[i] == "-o") {
                         i = i + 1
                         outputFile = system.argv[i]
+                    } elseif (argv[i] == "-t") {
+                        i = i + 1
+                        annOutputFileType = system.argv[i]
+                    } elseif (system.argv[i] == "-r") {
+                        i = i + 1
+                        reportFile = system.argv[i]
+                    } elseif (system.argv[i] == "-c") {
+                        i = i + 1
+                        csvFile = system.argv[i]
+                    } elseif (system.argv[i] == "--cf") {
+                        i = i + 1
+                        correctnessFile = system.argv[i]
+                    } elseif (system.argv[i] == "--ann") {
+                        i = i + 1
+                        annFile = system.argv[i]
+                    } elseif (system.argv[i] == "--annout") {
+                        i = i + 1
+                        annOutputFile = system.argv[i]
+                    } elseif (system.argv[i] == "--its") {
+                        i = i + 1
+                        itsFile = system.argv[i]
+                    } elseif (system.argv[i] == "--ots") {
+                        i = i + 1
+                        otsFile = system.argv[i]
+                    } elseif (system.argv[i] == "--skipfirst") {
+                        skipFirst = true
+                    } elseif (system.argv[i] == "--separator") {
+                        i = i + 1
+                        separator = system.argv[i]
+                    } elseif (system.argv[i] == "--lrate") {
+                        i = i + 1
+                        lRate = core.toNumber(system.argv[i])
+                    } elseif (system.argv[i] == "--af") {
+                        i = i + 1
+                        activationFunction = system.argv[i]
+                    } elseif (system.argv[i] == "--oaf") {
+                        i = i + 1
+                        outputLayerActivationFunction = system.argv[i]
+                    } elseif (system.argv[i] == "--of") {
+                        i = i + 1
+                        outputFunction = system.argv[i]
+                    } elseif (system.argv[i] == "--ofc") {
+                        i = i + 1
+                        ofc = core.eval(system.argv[i])
+                    } elseif (system.argv[i] == "--loops") {
+                        allowLoops = true
+                    } elseif (system.argv[i] == "--prepare") {
+                        prepare = true
+                    } elseif (system.argv[i] == "--nw") {
+                        negativeWeights = true
+                    } elseif (system.argv[i] == "--epochs") {
+                        i = i + 1
+                        maxEpochs = core.toNumber(system.argv[i])
+                    } elseif (system.argv[i] == "--correct") {
+                        i = i + 1
+                        minimumCorrectness = core.toNumber(system.argv[i])
+                    } elseif (argv[i] == "--interval") {
+                        i = i + 1
+                        interval = core.toNumber(system.argv[i])
                     } elseif (system.argv[i] == "--create") {
                         createANN = true
                     } elseif (system.argv[i] == "--create") {
@@ -128,6 +241,21 @@ namespace maiaApp {
                     } elseif (system.argv[i] == "--nhu") {
                         i = i + 1
                         nhu = core.toNumber(system.argv[i])
+                    } elseif (system.argv[i] == "--prefix") {
+                        i = i + 1
+                        prefix = system.argv[i]
+                    } elseif (system.argv[i] == "--nfiles") {
+                        i = i + 1
+                        nFiles = core.toNumber(system.argv[i])
+                    } elseif (system.argv[i] == "--from") {
+                        i = i + 1
+                        indexFrom = core.toNumber(system.argv[i])
+                    } elseif (system.argv[i] == "--to") {
+                        i = i + 1
+                        indexTo = core.toNumber(system.argv[i])
+                    } elseif (system.argv[i] == "--in") {
+                        i = i + 1
+                        indexIn = core.toNumber(system.argv[i])
                     } else {
                         inputFile = system.argv[i]
                         break
