@@ -22,7 +22,7 @@
         "maiascript": "./bin/maianne.js"
     },
     "dependencies": {
-        "maiascript-cli": "^3.3.2"
+        "maiascript-cli": "^3.8.4"
     },
     "scripts": {
         "build": "./build.sh",

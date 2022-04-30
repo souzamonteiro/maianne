@@ -9,6 +9,6 @@ cp build/maianne.maia bin/
 
 chmod 755 bin/*
 
-jsdoc -d ./docs ./package.json ./src
+jsdoc -c ./jsdoc.json -d ./docs ./package.json ./src
 
 #cp manual/* docs/

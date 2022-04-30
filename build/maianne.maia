@@ -21,39 +21,33 @@
 
 ///
 /// MaiaApp core class.
-/// @namespace
+/// @namespace maianne
 ///
-namespace maiaApp {
+namespace maianne {
     appTitle = "MaiaNNE"
     appName = "maianne"
     scriptPath = "./"
-    cnaLibrary = this.scriptPath + "../maia/cna.maia"
+    cnaLibrary = this.scriptPath + "/maia/cna/cna.maia"
 
-    // Interpret the options passed on the command line,
-    // process the files and generate the requested reports.
+    /// Starts the application and processes the data passed as command line arguments.
+    /// @method run
+    /// @memberof maianne
     function run() {
         // Supports only the Node.js interpreter.
         if (core.type(process) != "undefined") {
             command = "node"
             
             fs = system.require("fs")
+
+            realPath = fs.realpathSync(system.argv[0])
+            filePath = realPath.split("/")
+            filePath = core.slice(filePath, 0, filePath.length - 2)
+            filePath = filePath.join("/")
+            this.scriptPath = filePath
+            this.cnaLibrary = this.scriptPath + "/maia/cna/cna.maia"
+            system.source(this.cnaLibrary)
+            
             readTextFile = fs.readFileSync
-
-            function getRealPath (error, realPath) {
-                if (error) {
-                    system.log(error)
-                } else {
-                    filePath = realPath.split("/")
-                    filePath = core.slice(filePath, 0, filePath.length - 2)
-                    filePath = filePath.join("/")
-                    this.scriptPath = filePath
-                    system.log("scriptPath:" + this.scriptPath)
-                    this.cnaLibrary = this.scriptPath + "/maia/cna/cna.maia"
-                    system.source(this.cnaLibrary)
-                }
-            }
-
-            fs.realpath(system.argv[0], {"encoding": "utf8"}, getRealPath)
 
             // Read file callback.
             function readFile(input) {
@@ -61,83 +55,446 @@ namespace maiaApp {
                 return(content)
             }
             
+            // Callback.
+            function trainingCallback(epochs, RSS, correctness, ETL) {
+                system.println(core.toString(epochs) + "," + core.toString(RSS) + "," + core.toString(correctness) + "," + core.toString(ETL))
+            }
+            
             // Command line options.
             inputFile = ""
             outputFile = ""
+            reportFile = ""
+            csvFile = ""
+            correctnessFile = ""
+            annFile = ""
+            annOutputFile = ""
+            annOutputFileType = "edges"
+            itsFile = ""
+            otsFile = ""
+            linesToSkip = 0
+            separator = ","
+            lRate = 0.45
+            af = "tanh"
+            oaf = "linear"
+            of = "none"
+            ofc = [1, 0]
+            allowLoops = false
+            prepare = false
+            negativeWeights = false
+            maxEpochs = 1
+            minimumCorrectness = 1.0
+            interval = 0
+            
+            createANN = false
+            topology = "mlp"
+            vertices = 0
+            edges = 0
+            probability = 0
+            avgdeg = 0
+            ni = 0
+            no = 0
+            nl = 0
+            nhu = 0
+            prefix = "sample"
+            nFiles = 1
+            indexFrom = 1
+            indexTo = 1
+            indexIn = 1
             
             // Get command line arguments.
             if (system.argc > 1) {
                 i = 1
                 while (i < system.argc) {
                     if ((system.argv[i] == "-h") | (system.argv[i] == "--help")) {
-                        system.log(this.appTitle + " Command Line Interface (CLI)")
-                        system.log("Usage: " + this.appName + " [options] [input file] [--] [arguments]")
+                        system.log(maianne.appTitle + " Command Line Interface (CLI)")
+                        system.log("Usage: " + maianne.appName + " [options] [input file] [--] [arguments]")
                         system.log("Options:")
                         system.log("-h     --help               Displays this help message;")
+                        system.log("-i     [input file]         Input file name.")
                         system.log("-o     [output file]        Output file name.")
+                        system.log("-t                          Network output file type (default=edges).")
+                        system.log("-r                          Statistics report file.")
+                        system.log("-c                          Statistics CSV file.")
+                        system.log("       --cf                 Correctness CSV file.")
+                        system.log("       --ann                The artificial neural network file.")
+                        system.log("       --annout             The artificial neural network output file.")
+                        system.log("       --its                Input training set file.")
+                        system.log("       --ots                Output training set file.")
+                        system.log("       --skipfirst          Skip first line of input and output training set files.")
+                        system.log("       --separator          Training set files column separator(default=,).")
+                        system.log("       --lrate              Learning rate (default=0.45).")
+                        system.log("       --af                 Activation function (default=logistic).")
+                        system.log("       --oaf                Output layer activation function (default=logistic).")
+                        system.log("       --of                 Output function(default=step).")
+                        system.log("       --ofc                Output function coefficients.")
+                        system.log("       --loops              Allow loops in network(biases).")
+                        system.log("       --prepare            Prepare the artificil neural network to learning.")
+                        system.log("       --nw                 Allow initial negative weights.")
+                        system.log("       --epochs             Max number of epochs to learning.")
+                        system.log("       --correct            Target correctness.")
+                        system.log("       --interval           Epochs interval to show the learning progress.")
+                        system.log("       --create             Create an artificial neural network.")
+                        system.log("       --topology           Create an artificial neural network.")
+                        system.log("       --vertices           Number of vertices.")
+                        system.log("       --edges              Number of edges.")
+                        system.log("       --probability        Edge probability.")
+                        system.log("       --avgdeg             Average degree.")
+                        system.log("       --ni                 Number of input neurons.")
+                        system.log("       --no                 Number of output neurons.")
+                        system.log("       --nl                 Number of layers")
+                        system.log("       --nhu                Number of hidden units.")
+                        system.log("       --prefix             prefix for multiple neural network files (default=sample).")
+                        system.log("       --nfiles             Number of files for multiple neural network files.")
+                        system.log("       --from               First file index for multiple neural network files.")
+                        system.log("       --to                 Last file index for multiple neural network files.")
+                        system.log("       --in                 Total number of files in the file set.")
                         process.exit(0)
+                    } elseif (system.argv[i] == "-i") {
+                        i = i + 1
+                        inputFile = system.argv[i]
                     } elseif (system.argv[i] == "-o") {
                         i = i + 1
                         outputFile = system.argv[i]
+                    } elseif (system.argv[i] == "-t") {
+                        i = i + 1
+                        annOutputFileType = system.argv[i]
+                    } elseif (system.argv[i] == "-r") {
+                        i = i + 1
+                        reportFile = system.argv[i]
+                    } elseif (system.argv[i] == "-c") {
+                        i = i + 1
+                        csvFile = system.argv[i]
+                    } elseif (system.argv[i] == "--cf") {
+                        i = i + 1
+                        correctnessFile = system.argv[i]
+                    } elseif (system.argv[i] == "--ann") {
+                        i = i + 1
+                        annFile = system.argv[i]
+                    } elseif (system.argv[i] == "--annout") {
+                        i = i + 1
+                        annOutputFile = system.argv[i]
+                    } elseif (system.argv[i] == "--its") {
+                        i = i + 1
+                        itsFile = system.argv[i]
+                    } elseif (system.argv[i] == "--ots") {
+                        i = i + 1
+                        otsFile = system.argv[i]
+                    } elseif (system.argv[i] == "--skipfirst") {
+                        linesToSkip = 1
+                    } elseif (system.argv[i] == "--separator") {
+                        i = i + 1
+                        separator = system.argv[i]
+                    } elseif (system.argv[i] == "--lrate") {
+                        i = i + 1
+                        lRate = core.toNumber(system.argv[i])
+                    } elseif (system.argv[i] == "--af") {
+                        i = i + 1
+                        af = system.argv[i]
+                    } elseif (system.argv[i] == "--oaf") {
+                        i = i + 1
+                        oaf = system.argv[i]
+                    } elseif (system.argv[i] == "--of") {
+                        i = i + 1
+                        of = system.argv[i]
+                    } elseif (system.argv[i] == "--ofc") {
+                        i = i + 1
+                        ofc = core.eval(system.argv[i])
+                    } elseif (system.argv[i] == "--loops") {
+                        allowLoops = true
+                    } elseif (system.argv[i] == "--prepare") {
+                        prepare = true
+                    } elseif (system.argv[i] == "--nw") {
+                        negativeWeights = true
+                    } elseif (system.argv[i] == "--epochs") {
+                        i = i + 1
+                        maxEpochs = core.toNumber(system.argv[i])
+                    } elseif (system.argv[i] == "--correct") {
+                        i = i + 1
+                        minimumCorrectness = core.toNumber(system.argv[i])
+                    } elseif (system.argv[i] == "--interval") {
+                        i = i + 1
+                        interval = core.toNumber(system.argv[i])
+                    } elseif (system.argv[i] == "--create") {
+                        createANN = true
+                    } elseif (system.argv[i] == "--topology") {
+                        i = i + 1
+                        topology = system.argv[i]
+                    } elseif (system.argv[i] == "--vertices") {
+                        i = i + 1
+                        vertices = core.toNumber(system.argv[i])
+                    } elseif (system.argv[i] == "--edges") {
+                        i = i + 1
+                        edges = core.toNumber(system.argv[i])
+                    } elseif (system.argv[i] == "--probability") {
+                        i = i + 1
+                        probability = core.toNumber(system.argv[i])
+                    } elseif (system.argv[i] == "--avgdeg") {
+                        i = i + 1
+                        avgdeg = core.toNumber(system.argv[i])
+                    } elseif (system.argv[i] == "--ni") {
+                        i = i + 1
+                        ni = core.toNumber(system.argv[i])
+                    } elseif (system.argv[i] == "--no") {
+                        i = i + 1
+                        no = core.toNumber(system.argv[i])
+                    } elseif (system.argv[i] == "--nl") {
+                        i = i + 1
+                        nl = core.toNumber(system.argv[i])
+                    } elseif (system.argv[i] == "--nhu") {
+                        i = i + 1
+                        nhu = core.toNumber(system.argv[i])
+                    } elseif (system.argv[i] == "--prefix") {
+                        i = i + 1
+                        prefix = system.argv[i]
+                    } elseif (system.argv[i] == "--nfiles") {
+                        i = i + 1
+                        nFiles = core.toNumber(system.argv[i])
+                    } elseif (system.argv[i] == "--from") {
+                        i = i + 1
+                        indexFrom = core.toNumber(system.argv[i])
+                    } elseif (system.argv[i] == "--to") {
+                        i = i + 1
+                        indexTo = core.toNumber(system.argv[i])
+                    } elseif (system.argv[i] == "--in") {
+                        i = i + 1
+                        indexIn = core.toNumber(system.argv[i])
                     } else {
-                        inputFile = system.argv[i]
+                        annFile = system.argv[i]
                         break
                     }
                     i = i + 1
                 }
-
-                if (inputFile != "") {
-                    local Glob = system.require("glob")
-                    // Process each file based on glob pattern.
-                    function processFiles(er, files) {
-                        if (files.length == 0) {
-                            system.log(this.appTitle + " Command Line Interface (CLI)")
-                            system.log("Usage: " + this.appName + " [options] [input file] [--] [arguments]")
-                        } else {
-                            for (i = 0; i < files.length; i = i + 1) {
-                                // Get the full file name.
-                                file = files[i]
-                                
-                                // Get the file without extension.
-                                fileName = file.split(".")
-                                fileName = fileName.shift()
-
-                                // Get the file name extension.
-                                fileExtension = file.split(".")
-                                fileExtension = fileExtension.pop()
-
-                                // Read the file contents.
-                                fileContents = readFile(String(file))
-
-                                // Do something...
-
-                                // Sets the output file.
-                                if (outputFile == "") {
-                                    outputFile = fileName + ".out"
-                                }
-
-                                // Write something to the output file.
-                                function errorCallback(err) {
-                                    if (err) {
-                                        throw(err)
-                                    }
-                                }
-                                fs.writeFile(outputFile, fileContents, errorCallback)
-                            }
+                if (createANN) {
+                    // Calculates the file index number range.
+                    if (indexFrom < 1) {
+                        indexFrom = 1
+                    }
+                    if (indexTo <= 1) {
+                        if (nFiles > 1) {
+                            indexTo = indexFrom + nFiles - 1
                         }
                     }
+                    nFiles = indexTo - indexFrom + 1
+                    if (indexIn <= 1) {
+                        indexIn = nFiles
+                    }
+                    for (nFile = indexFrom; nFile <= indexTo; nFile = nFile + 1) {
+                        if (nFiles > 1) {
+                            outputFile = prefix + "-" + string.sprintf("%0" + core.length(core.toString(indexIn)) + "." + core.length(core.toString(indexIn)) + "d", nFile) + ".net"
+                        }
 
-                    options = []
+                        property = {
+                            "adj": [],
+                            "n": 0,
+                            "m": 0,
+                            "directed": false,
+                            "density": 0,
+                            "networkLabel": [],
+                            "networkDegree": [],
+                            "networkAverageDegree": 0,
+                            "networkDegreeDistribution": [],
+                            "networkDensity": 0,
+                            "networkClustering": [],
+                            "networkAverageClustering": 0,
+                            "networkShortestPath": [],
+                            "networkAverageShortestPath": 0,
+                            "networkDiameter": 0,
+                            "networkCentrality": [],
+                            "networkVertexEfficiency": [],
+                            "networkGlobalEfficiency": 0
+                        }
+                        
+                        property.adj = ann.createANN(topology, vertices, edges, probability, avgdeg, ni, no, nl, nhu)
+                        fileContents = cna.createPajekFile(property.adj, "arcs")
 
-                    // Get all file names based on glob pattern.
-                    local glob := Glob(inputFile, options, processFiles)
+                        // Sets the output file.
+                        if (outputFile == "") {
+                            outputFile = "output.net"
+                        }
+
+                        // Write something to the output file.
+                        function errorCallback(err) {
+                            if (err) {
+                                throw(err)
+                            }
+                        }
+                        fs.writeFile(outputFile, fileContents, errorCallback)
+                    }
                 } else {
-                    system.log(this.appTitle + " Command Line Interface (CLI)")
-                    system.log("Usage: " + this.appName + " [options] [input file] [--] [arguments]")
+                    if (annFile != "") {
+                        local Glob = system.require("glob")
+                        // Process each file based on glob pattern.
+                        function processFiles(er, files) {
+                            if (files.length == 0) {
+                                system.log(maianne.appTitle + " Command Line Interface (CLI)")
+                                system.log("Usage: " + maianne.appName + " [options] [input file] [--] [arguments]")
+                            } else {
+                                for (i = 0; i < files.length; i = i + 1) {
+                                    // Get the full file name.
+                                    file = files[i]
+                                    
+                                    // Get the file without extension.
+                                    fileName = file.split(".")
+                                    fileName = fileName.shift()
+
+                                    // Get the file name extension.
+                                    fileExtension = file.split(".")
+                                    fileExtension = fileExtension.pop()
+
+                                    // Read the file contents.
+                                    fileContents = readFile(file)
+
+                                    // Do something...
+                                    property = {
+                                        "adj": [],
+                                        "n": 0,
+                                        "m": 0,
+                                        "directed": false,
+                                        "networkLabel": [],
+                                        "networkDegree": [],
+                                        "networkAverageDegree": 0,
+                                        "networkDegreeDistribution": [],
+                                        "networkDensity": 0,
+                                        "networkClustering": [],
+                                        "networkAverageClustering": 0,
+                                        "networkShortestPath": [],
+                                        "networkAverageShortestPath": 0,
+                                        "networkDiameter": 0,
+                                        "networkCentrality": [],
+                                        "networkVertexEfficiency": [],
+                                        "networkGlobalEfficiency": 0
+                                    }
+
+                                    // Parses file contents.
+                                    if (fileExtension == "json") {
+                                        network = JSON.parse(fileContents)
+                                        pajekFileContents = cna.jsonToPajekFile(network)
+                                        property.adj = cna.parsePajekFile(pajekFileContents, property)
+                                        property.networkLabel = cna.getLabels(property.adj)
+                                    } elseif (fileExtension == "net") {
+                                        property.adj = cna.parsePajekFile(fileContents, property)
+                                        property.networkLabel = cna.getLabels(property.adj)
+                                    } else {
+                                        system.log("Unsupported file format when processing file " + file + "")
+                                    }
+                                    
+                                    if ((itsFile != "") && (otsFile != "")) {
+                                        // Reads the train set.
+                                        itsData = system.loadCSV(itsFile, linesToSkip, separator, true, true)
+                                        otsData = system.loadCSV(otsFile, linesToSkip, separator, true, true)
+
+                                        // Assigns random starting weights to neural synapses.
+                                        if (prepare) {
+                                            property.adj = ann.prepare(property.adj, true, allowLoops, negativeWeights)
+                                        } else {
+                                            property.adj = ann.prepare(property.adj, false, allowLoops, negativeWeights)
+                                        }
+
+                                        // Trains the neural network.
+                                        startTime := Date()
+                                        correctness = ann.training(property.adj, itsData, otsData, lRate, af, oaf, of, ofc, maxEpochs, minimumCorrectness, trainingCallback, 100)
+
+                                        //correctness = ann.training(property.adj, itsData, otsData, lRate, af, oaf, of, ofc, maxEpochs, minimumCorrectness, trainingCallback, interval)
+                                        endTime := Date()
+                                        elapsedTime = endTime - startTime
+
+                                        // Saves the trained network.
+                                        trainedAnn = ann.reduce(property.adj)
+                                        cna.setLabels(trainedAnn, property.networkLabel)
+                                        
+                                        trainedAnnFileContents = cna.createPajekFile(trainedAnn, "arcs")
+
+                                        // Sets the output file.
+                                        if (annOutputFile == "") {
+                                            annOutputFile = fileName + "-trained.net"
+                                        }
+
+                                        // Write something to the output file.
+                                        function errorCallback(err) {
+                                            if (err) {
+                                                throw(err)
+                                            }
+                                        }
+                                        fs.writeFile(annOutputFile, trainedAnnFileContents, errorCallback)
+
+                                        // Saves correctness data.
+                                        correctnessFileContents = system.createCSV(correctness[2], separator, ["rss", "correctness"])
+
+                                        if (correctnessFile == "") {
+                                            correctnessFile = fileName + "-correctness.net"
+                                        }
+
+                                        function errorCallback(err) {
+                                            if (err) {
+                                                throw(err)
+                                            }
+                                        }
+                                        fs.writeFile(correctnessFile, correctnessFileContents, errorCallback)
+
+                                        // Saves the report file.
+                                        finalEpochs = core.toString(correctness[0])
+                                        finalRss = core.toString(correctness[1])
+                                        finalCorrectness = core.toString(correctness[2, core.length(correctness[2]) - 1, 1])
+
+                                        reportFileContents = ""
+                                        reportFileContents = reportFileContents + "Epochs: " + finalEpochs + "\n"
+                                        reportFileContents = reportFileContents + "RSS: " + finalRss + "\n"
+                                        reportFileContents = reportFileContents + "Correctness: "  + finalCorrectness + "\n"
+                                        reportFileContents = reportFileContents + "Elapsed Time: "  + elapsedTime + "\n"
+                                        
+                                        if (reportFile == "") {
+                                            reportFile = fileName + "-report.txt"
+                                        }
+
+                                        function errorCallback(err) {
+                                            if (err) {
+                                                throw(err)
+                                            }
+                                        }
+                                        fs.writeFile(reportFile, reportFileContents, errorCallback)
+                                    }
+
+                                    // Uses the trained network to process the input data.
+                                    if (inputFile != "") {
+                                        inputData = system.loadCSV(inputFile, linesToSkip, separator, true, true)
+                                        outputData = []
+
+                                        for (indexData = 0; indexData < inputData.length; indexData = indexData + 1) {
+                                            inData = inputData[indexData]
+                                            outData = ann.think(property.adj, inData, ni, no, af, oaf, of, ofc)
+                                            outputData.push(outData)
+                                        }
+
+                                        outputFileContents = system.createCSV(outputData, separator)
+
+                                        // Sets the output file.
+                                        if (outputFile == "") {
+                                            outputFile = fileName + "-output.csv"
+                                        }
+
+                                        function errorCallback(err) {
+                                            if (err) {
+                                                throw(err)
+                                            }
+                                        }
+                                        fs.writeFile(outputFile, outputFileContents, errorCallback)
+                                    }
+                                }
+                            }
+                        }
+
+                        options = []
+
+                        // Get all file names based on glob pattern.
+                        local glob := Glob(annFile, options, processFiles)
+                    } else {
+                        system.log(maianne.appTitle + " Command Line Interface (CLI)")
+                        system.log("Usage: " + maianne.appName + " [options] [input file] [--] [arguments]")
+                    }
                 }
             } else {
-                system.log(this.appTitle + " Command Line Interface (CLI)")
-                system.log("Usage: " + this.appName + " [options] [input file] [--] [arguments]")
+                system.log(maianne.appTitle + " Command Line Interface (CLI)")
+                system.log("Usage: " + maianne.appName + " [options] [input file] [--] [arguments]")
             }
         }
     }
@@ -146,5 +503,5 @@ namespace maiaApp {
 // Run the MaiaApp code if this script has been invoked
 // from the command line.
 if (core.type(process) != "undefined") {
-    maiaApp.run()
+    maianne.run()
 }
