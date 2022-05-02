@@ -68,7 +68,6 @@ namespace maianne {
             correctnessFile = ""
             annFile = ""
             annOutputFile = ""
-            annOutputFileType = "edges"
             itsFile = ""
             otsFile = ""
             linesToSkip = 0
@@ -112,7 +111,6 @@ namespace maianne {
                         system.log("-h     --help               Displays this help message.")
                         system.log("-i     [input file]         Input file name.")
                         system.log("-o     [output file]        Output file name.")
-                        system.log("-t                          Network output file type (default=edges).")
                         system.log("-r                          Statistics report file.")
                         system.log("-c                          Statistics CSV file.")
                         system.log("       --cf                 Correctness CSV file.")
@@ -155,9 +153,6 @@ namespace maianne {
                     } elseif (system.argv[i] == "-o") {
                         i = i + 1
                         outputFile = system.argv[i]
-                    } elseif (system.argv[i] == "-t") {
-                        i = i + 1
-                        annOutputFileType = system.argv[i]
                     } elseif (system.argv[i] == "-r") {
                         i = i + 1
                         reportFile = system.argv[i]
