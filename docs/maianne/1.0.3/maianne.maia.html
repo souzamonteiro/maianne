@@ -57,6 +57,104 @@ namespace maianne {
     scriptPath = "./"
     cnaLibrary = this.scriptPath + "/maia/cna/cna.maia"
     
+    ///
+    /// Calculates the average and the deviation of a time series.
+    /// @method getAverage
+    /// @memberof maianne
+    /// @param {object}   data - The time series.
+    /// @return {number}  Returns the average and the deviation of the time series.
+    ///
+    function getAverage(data) {
+        average = 0
+        deviation = 0
+        minimum = data[0, 0]
+        maximum = data[0, 0]
+
+        sx = 0
+        sx2 = 0
+        n = data.length
+                    
+        for (i = 0; i &lt; data.length; i = i + 1) {
+            x = data[i, 0]
+
+            if (minimum > x) {
+                minimum = x
+            }
+
+            if (maximum &lt; x) {
+                maximum = x
+            }
+
+            sx = sx + x
+            sx2 = sx2 + x * x
+        }
+
+        average = sx / n
+        deviation = math.sqrt((sx2 - (sx * sx) / n) / (n - 1))
+
+        returnObject = {
+            "average": average,
+            "deviation": deviation,
+            "minimum": minimum,
+            "maximum": maximum,
+            "n": n
+        }
+
+        return(returnObject)
+    }
+
+    ///
+    /// Normalizes a time series.
+    /// @method normalize
+    /// @memberof maianne
+    /// @param {object}   data - The time series.
+    /// @param {number}   minimum - The minimum value of the time series.
+    /// @param {number}   maximum - The maximum value of the time series.
+    /// @return {number}  Returns the normalized time series.
+    ///
+    function normalize(data, minimum, maximum) {
+        if ((core.type(minimum) == "undefined") || (core.type(maximum) == "undefined")) {
+            avgData = this.getAverage(data)
+            minimum = avgData.minimum
+            maximum = avgData.maximum
+        }
+
+        normalizedData = []
+
+        for (i = 0; i &lt; data.length; i = i + 1) {
+            x = data[i, 0]
+            if (core.type(x) == "number") {
+                normalizedX = (x - minimum) / (maximum - minimum)
+                normalizedData.push([normalizedX])
+            }
+        }
+
+        return(normalizedData)
+    }
+
+    ///
+    /// Denormalizes a time series.
+    /// @method denormalize
+    /// @memberof maianne
+    /// @param {object}   data - The time series.
+    /// @param {number}   minimum - The minimum value of the time series.
+    /// @param {number}   maximum - The maximum value of the time series.
+    /// @return {number}  Returns the denormalized time series.
+    ///
+    function denormalize(data, minimum, maximum) {
+        denormalizedData = []
+
+        for (i = 0; i &lt; data.length; i = i + 1) {
+            x = data[i, 0]
+            if (core.type(x) == "number") {
+                denormalizedX = x * maximum - x * minimum + minimum
+                denormalizedData.push([denormalizedX])
+            }
+        }
+
+        return(denormalizedData)
+    }
+
     /// Starts the application and processes the data passed as command line arguments.
     /// @method run
     /// @memberof maianne
@@ -127,7 +225,11 @@ namespace maianne {
             indexFrom = 1
             indexTo = 1
             indexIn = 1
-            
+            normalizeData = false
+            denormalizeData = false
+            minimum = ""
+            maximum = ""
+
             // Get command line arguments.
             if (system.argc > 1) {
                 i = 1
@@ -174,6 +276,10 @@ namespace maianne {
                         system.log("       --from               First file index for multiple neural network files.")
                         system.log("       --to                 Last file index for multiple neural network files.")
                         system.log("       --in                 Total number of files in the file set.")
+                        system.log("       --normalize          Normalizes a time series.")
+                        system.log("       --denormalize        Denormalizes a time series.")
+                        system.log("       --minimum            The minimum value of the time series.")
+                        system.log("       --maximum            The maximum value of the time series.")
                         process.exit(0)
                     } elseif (system.argv[i] == "-i") {
                         i = i + 1
@@ -281,6 +387,16 @@ namespace maianne {
                     } elseif (system.argv[i] == "--in") {
                         i = i + 1
                         indexIn = core.toNumber(system.argv[i])
+                    } elseif (system.argv[i] == "--normalize") {
+                        normalizeData = true
+                    } elseif (system.argv[i] == "--denormalize") {
+                        denormalizeData = true
+                    } elseif (system.argv[i] == "--minimum") {
+                        i = i + 1
+                        minimum = core.toNumber(system.argv[i])
+                    } elseif (system.argv[i] == "--maximum") {
+                        i = i + 1
+                        maximum = core.toNumber(system.argv[i])
                     } else {
                         annFile = system.argv[i]
                         break
@@ -335,14 +451,69 @@ namespace maianne {
                             outputFile = "output.net"
                         }
 
-                        // Write something to the output file.
-                        function errorCallback(err) {
-                            if (err) {
-                                throw(err)
-                            }
-                        }
-                        fs.writeFile(outputFile, fileContents, errorCallback)
+                        fs.writeFileSync(outputFile, fileContents)
                     }
+                } elseif (normalizeData) {
+                    // Get the file without extension.
+                    fileName = inputFile.split(".")
+                    fileName = fileName.shift()
+
+                    // Get the file name extension.
+                    fileExtension = inputFile.split(".")
+                    fileExtension = fileExtension.pop()
+                    
+                    if (outputFile == "") {
+                        outputFile = fileName + "-normalized." + fileExtension
+                    }
+
+                    inputData = system.loadCSV(inputFile, linesToSkip, separator, true, true)
+                    system.log("passou 1")
+                    avgData = this.getAverage(inputData)
+                    outputData = this.normalize(inputData, avgData.minimum, avgData.maximum)
+                    system.log("passou 2")
+                    
+                    fileContents = system.createCSV(outputData, separator)
+system.log("passou 3")
+                    
+                    fs.writeFileSync(outputFile, fileContents)
+
+                    // Saves the report file.
+                    reportFileContents = ""
+                    reportFileContents = reportFileContents + "Average: " + core.toString(avgData.average) + "\n"
+                    reportFileContents = reportFileContents + "Deviation: " + core.toString(avgData.deviation) + "\n"
+                    reportFileContents = reportFileContents + "Minimum: "  + core.toString(avgData.minimum) + "\n"
+                    reportFileContents = reportFileContents + "Maximum: "  + core.toString(avgData.maximum) + "\n"
+                    reportFileContents = reportFileContents + "Events: "  + core.toString(avgData.n) + "\n"
+                    
+                    if (reportFile == "") {
+                        reportFile = fileName + "-report.txt"
+                    }
+
+                    fs.writeFileSync(reportFile, reportFileContents)
+                } elseif (denormalizeData) {
+                    if ((core.type(minimum) != "number") || (core.type(maximum) != "number")) {
+                        system.log("To denormalize a time series you need to provide the minimum and maximum values of the original, denormalized series.")
+                        process.exit()
+                    }
+
+                    // Get the file without extension.
+                    fileName = inputFile.split(".")
+                    fileName = fileName.shift()
+
+                    // Get the file name extension.
+                    fileExtension = inputFile.split(".")
+                    fileExtension = fileExtension.pop()
+                    
+                    if (outputFile == "") {
+                        outputFile = fileName + "-denormalized." + fileExtension
+                    }
+
+                    inputData = system.loadCSV(inputFile, linesToSkip, separator, true, true)
+                    outputData = this.denormalize(inputData, minimum, maximum)
+
+                    fileContents = system.createCSV(outputData, separator)
+
+                    fs.writeFileSync(outputFile, fileContents)
                 } else {
                     if (annFile != "") {
                         local Glob = system.require("glob")
@@ -399,6 +570,7 @@ namespace maianne {
                                         property.networkLabel = cna.getLabels(property.adj)
                                     } else {
                                         system.log("Unsupported file format when processing file " + file + "")
+                                        process.exit()
                                     }
                                     
                                     if ((itsFile != "") &amp;&amp; (otsFile != "")) {
@@ -432,13 +604,7 @@ namespace maianne {
                                             annOutputFile = fileName + "-trained.net"
                                         }
 
-                                        // Write something to the output file.
-                                        function errorCallback(err) {
-                                            if (err) {
-                                                throw(err)
-                                            }
-                                        }
-                                        fs.writeFile(annOutputFile, trainedAnnFileContents, errorCallback)
+                                        fs.writeFileSync(annOutputFile, trainedAnnFileContents)
 
                                         // Saves correctness data.
                                         correctnessFileContents = system.createCSV(correctness[2], separator, ["rss", "correctness"])
@@ -447,12 +613,7 @@ namespace maianne {
                                             correctnessFile = fileName + "-correctness.net"
                                         }
 
-                                        function errorCallback(err) {
-                                            if (err) {
-                                                throw(err)
-                                            }
-                                        }
-                                        fs.writeFile(correctnessFile, correctnessFileContents, errorCallback)
+                                        fs.writeFileSync(correctnessFile, correctnessFileContents)
 
                                         // Saves the report file.
                                         finalEpochs = core.toString(correctness[0])
@@ -469,12 +630,7 @@ namespace maianne {
                                             reportFile = fileName + "-report.txt"
                                         }
 
-                                        function errorCallback(err) {
-                                            if (err) {
-                                                throw(err)
-                                            }
-                                        }
-                                        fs.writeFile(reportFile, reportFileContents, errorCallback)
+                                        fs.writeFileSync(reportFile, reportFileContents)
                                     }
 
                                     // Uses the trained network to process the input data.
@@ -495,12 +651,7 @@ namespace maianne {
                                             outputFile = fileName + "-output.csv"
                                         }
 
-                                        function errorCallback(err) {
-                                            if (err) {
-                                                throw(err)
-                                            }
-                                        }
-                                        fs.writeFile(outputFile, outputFileContents, errorCallback)
+                                        fs.writeFileSync(outputFile, outputFileContents)
                                     }
                                 }
                             }
@@ -543,7 +694,7 @@ if (core.type(process) != "undefined") {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Tue May 03 2022 23:30:34 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Thu May 05 2022 17:44:25 GMT-0300 (Horário Padrão de Brasília)
 </footer>
 
 <script> prettyPrint(); </script>
