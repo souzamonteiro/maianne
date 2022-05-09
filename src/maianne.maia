@@ -49,16 +49,18 @@ namespace maianne {
         for (i = 0; i < data.length; i = i + 1) {
             x = data[i, 0]
 
-            if (minimum > x) {
-                minimum = x
-            }
+            if (core.type(x) == "number") {
+                if (minimum > x) {
+                    minimum = x
+                }
 
-            if (maximum < x) {
-                maximum = x
-            }
+                if (maximum < x) {
+                    maximum = x
+                }
 
-            sx = sx + x
-            sx2 = sx2 + x * x
+                sx = sx + x
+                sx2 = sx2 + x * x
+            }
         }
 
         average = sx / n
@@ -95,6 +97,7 @@ namespace maianne {
 
         for (i = 0; i < data.length; i = i + 1) {
             x = data[i, 0]
+
             if (core.type(x) == "number") {
                 normalizedX = (x - minimum) / (maximum - minimum)
                 normalizedData.push([normalizedX])
@@ -118,6 +121,7 @@ namespace maianne {
 
         for (i = 0; i < data.length; i = i + 1) {
             x = data[i, 0]
+
             if (core.type(x) == "number") {
                 denormalizedX = x * maximum - x * minimum + minimum
                 denormalizedData.push([denormalizedX])
@@ -441,7 +445,7 @@ namespace maianne {
                     inputData = system.loadCSV(inputFile, linesToSkip, separator, true, true)
                     avgData = this.getAverage(inputData)
                     outputData = this.normalize(inputData, avgData.minimum, avgData.maximum)
-                    
+
                     fileContents = system.createCSV(outputData, separator)
                     
                     fs.writeFileSync(outputFile, fileContents)
