@@ -111,7 +111,7 @@
     
 
     
-    <h4 class="name" id=".denormalize"><span class="type-signature">(static) </span>denormalize<span class="signature">(data, minimum, maximum)</span><span class="type-signature"> &rarr; {number}</span></h4>
+    <h4 class="name" id=".denormalize"><span class="type-signature">(static) </span>denormalize<span class="signature">(data, minimum, maximum)</span><span class="type-signature"> &rarr; {object}</span></h4>
     
 
     
@@ -258,7 +258,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="maianne.maia.html">maianne.maia</a>, <a href="maianne.maia.html#line117">line 117</a>
+        <a href="maianne.maia.html">maianne.maia</a>, <a href="maianne.maia.html#line191">line 191</a>
     </li></ul></dd>
     
 
@@ -298,7 +298,7 @@
     </dt>
     <dd>
         
-<span class="param-type">number</span>
+<span class="param-type">object</span>
 
 
     </dd>
@@ -316,7 +316,7 @@
     
 
     
-    <h4 class="name" id=".getAverage"><span class="type-signature">(static) </span>getAverage<span class="signature">(data)</span><span class="type-signature"> &rarr; {number}</span></h4>
+    <h4 class="name" id=".getAverage"><span class="type-signature">(static) </span>getAverage<span class="signature">(data)</span><span class="type-signature"> &rarr; {object}</span></h4>
     
 
     
@@ -417,7 +417,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="maianne.maia.html">maianne.maia</a>, <a href="maianne.maia.html#line34">line 34</a>
+        <a href="maianne.maia.html">maianne.maia</a>, <a href="maianne.maia.html#line104">line 104</a>
     </li></ul></dd>
     
 
@@ -457,7 +457,7 @@
     </dt>
     <dd>
         
-<span class="param-type">number</span>
+<span class="param-type">object</span>
 
 
     </dd>
@@ -475,7 +475,7 @@
     
 
     
-    <h4 class="name" id=".normalize"><span class="type-signature">(static) </span>normalize<span class="signature">(data, minimum, maximum)</span><span class="type-signature"> &rarr; {number}</span></h4>
+    <h4 class="name" id=".normalize"><span class="type-signature">(static) </span>normalize<span class="signature">(data, minimum, maximum)</span><span class="type-signature"> &rarr; {object}</span></h4>
     
 
     
@@ -622,7 +622,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="maianne.maia.html">maianne.maia</a>, <a href="maianne.maia.html#line83">line 83</a>
+        <a href="maianne.maia.html">maianne.maia</a>, <a href="maianne.maia.html#line160">line 160</a>
     </li></ul></dd>
     
 
@@ -662,7 +662,235 @@
     </dt>
     <dd>
         
-<span class="param-type">number</span>
+<span class="param-type">object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".replacePattern"><span class="type-signature">(static) </span>replacePattern<span class="signature">(data, pattern, replacementString, asNumber)</span><span class="type-signature"> &rarr; {object}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Replaces a given pattern in a time series.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>data</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The time series.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>pattern</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The search pattern.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>replacementString</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The replacement value for the given pattern.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>asNumber</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Converts the series data to number.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="maianne.maia.html">maianne.maia</a>, <a href="maianne.maia.html#line34">line 34</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Returns the replaced time series.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">object</span>
 
 
     </dd>
@@ -732,7 +960,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="maianne.maia.html">maianne.maia</a>, <a href="maianne.maia.html#line142">line 142</a>
+        <a href="maianne.maia.html">maianne.maia</a>, <a href="maianne.maia.html#line216">line 216</a>
     </li></ul></dd>
     
 
@@ -763,6 +991,188 @@
 
 
         
+            
+
+    
+
+    
+    <h4 class="name" id=".splitData"><span class="type-signature">(static) </span>splitData<span class="signature">(data, nFirst)</span><span class="type-signature"> &rarr; {object}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Split an array into two parts.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>data</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The data to be split.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>nFirst</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Number of rows of the first part of the array.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="maianne.maia.html">maianne.maia</a>, <a href="maianne.maia.html#line73">line 73</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Returns two arrays.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
     
 
     
@@ -784,7 +1194,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Mon May 09 2022 14:26:06 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Tue May 10 2022 14:06:44 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>

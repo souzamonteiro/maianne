@@ -30,11 +30,79 @@ namespace maianne {
     cnaLibrary = this.scriptPath + "/maia/cna/cna.maia"
     
     ///
+    /// Replaces a given pattern in a time series.
+    /// @method replacePattern
+    /// @memberof maianne
+    /// @param {object}   data - The time series.
+    /// @param {string}   pattern - The search pattern.
+    /// @param {string}   replacementString - The replacement value for the given pattern.
+    /// @param {boolean}  asNumber - Converts the series data to number.
+    /// @return {object}  Returns the replaced time series.
+    ///
+    function replacePattern(data, pattern, replacementString, asNumber) {
+        if (core.type(asNumber) == "undefined") {
+            asNumber = false
+        }
+
+        replacedData = []
+
+        for (i = 0; i < data.length; i = i + 1) {
+            x = data[i, 0]
+
+            if (asNumber) {
+                if (x == pattern) {
+                    replacedData.push([core.toNumber(replacementString)])
+                } else {
+                    replacedData.push([core.toNumber(x)])
+                }
+            } else {
+                if (x == pattern) {
+                    replacedData.push([replacementString])
+                } else {
+                    replacedData.push([x])
+                }
+            }
+        }
+
+        return(replacedData)
+    }
+
+    ///
+    /// Split an array into two parts.
+    /// @method splitData
+    /// @memberof maianne
+    /// @param {object}   data - The data to be split.
+    /// @param {number}   nFirst - Number of rows of the first part of the array.
+    /// @return {object}  Returns two arrays.
+    ///
+    function splitData(data, nFirst) {
+        part1 = []
+        part2 = []
+
+        for (i = 0; i < data.length; i = i + 1) {
+            x = data[i, 0]
+
+            if (i < nFirst) {
+                part1.push([core.toNumber(x)])
+            } else {
+                part2.push([core.toNumber(x)])
+            }
+        }
+
+        returnObject = {
+            "part1": part1,
+            "part2": part2
+        }
+
+        return(returnObject)
+    }
+
+    ///
     /// Calculates the average and the deviation of a time series.
     /// @method getAverage
     /// @memberof maianne
     /// @param {object}   data - The time series.
-    /// @return {number}  Returns the average and the deviation of the time series.
+    /// @return {object}  Returns the average and the deviation of the time series.
     ///
     function getAverage(data) {
         average = 0
@@ -50,10 +118,15 @@ namespace maianne {
             x = data[i, 0]
 
             if (core.type(x) == "number") {
+                if (core.type(minimum) == "undefined") {
+                    minimum = x
+                }
+                if (core.type(maximum) == "undefined") {
+                    maximum = x
+                }
                 if (minimum > x) {
                     minimum = x
                 }
-
                 if (maximum < x) {
                     maximum = x
                 }
@@ -65,10 +138,12 @@ namespace maianne {
 
         average = sx / n
         deviation = math.sqrt((sx2 - (sx * sx) / n) / (n - 1))
+        error = deviation / math.sqrt(n)
 
         returnObject = {
             "average": average,
             "deviation": deviation,
+            "error": error,
             "minimum": minimum,
             "maximum": maximum,
             "n": n
@@ -84,7 +159,7 @@ namespace maianne {
     /// @param {object}   data - The time series.
     /// @param {number}   minimum - The minimum value of the time series.
     /// @param {number}   maximum - The maximum value of the time series.
-    /// @return {number}  Returns the normalized time series.
+    /// @return {object}  Returns the normalized time series.
     ///
     function normalize(data, minimum, maximum) {
         if ((core.type(minimum) == "undefined") || (core.type(maximum) == "undefined")) {
@@ -99,9 +174,6 @@ namespace maianne {
             x = data[i, 0]
 
             if (core.type(x) == "number") {
-                system.log(x)
-                system.log(minimum)
-                system.log(maximum)
                 normalizedX = (x - minimum) / (maximum - minimum)
                 normalizedData.push([normalizedX])
             }
@@ -117,7 +189,7 @@ namespace maianne {
     /// @param {object}   data - The time series.
     /// @param {number}   minimum - The minimum value of the time series.
     /// @param {number}   maximum - The maximum value of the time series.
-    /// @return {number}  Returns the denormalized time series.
+    /// @return {object}  Returns the denormalized time series.
     ///
     function denormalize(data, minimum, maximum) {
         denormalizedData = []
@@ -204,6 +276,11 @@ namespace maianne {
             indexFrom = 1
             indexTo = 1
             indexIn = 1
+            patternString = ""
+            replacementString = ""
+            replaceGivenPattern = false
+            splitFile = false
+            nFirst = 1
             normalizeData = false
             denormalizeData = false
             minimum = ""
@@ -255,6 +332,10 @@ namespace maianne {
                         system.log("       --from               First file index for multiple neural network files.")
                         system.log("       --to                 Last file index for multiple neural network files.")
                         system.log("       --in                 Total number of files in the file set.")
+                        system.log("       --replace            Replace lines whit pattern in a time series with a given value.")
+                        system.log("       --with               Replacement value for the given pattern.")
+                        system.log("       --split              Split a file into two parts.")
+                        system.log("       --nfirst             Number of lines of the first file to split.")
                         system.log("       --normalize          Normalizes a time series.")
                         system.log("       --denormalize        Denormalizes a time series.")
                         system.log("       --minimum            The minimum value of the time series.")
@@ -366,6 +447,18 @@ namespace maianne {
                     } elseif (system.argv[i] == "--in") {
                         i = i + 1
                         indexIn = core.toNumber(system.argv[i])
+                    } elseif (system.argv[i] == "--replace") {
+                        i = i + 1
+                        patternString = system.argv[i]
+                        replaceGivenPattern = true
+                    } elseif (system.argv[i] == "--with") {
+                        i = i + 1
+                        replacementString = system.argv[i]
+                    } elseif (system.argv[i] == "--split") {
+                        splitFile = true
+                    } elseif (system.argv[i] == "--nfirst") {
+                        i = i + 1
+                        nFirst = core.toNumber(system.argv[i])
                     } elseif (system.argv[i] == "--normalize") {
                         normalizeData = true
                     } elseif (system.argv[i] == "--denormalize") {
@@ -432,6 +525,46 @@ namespace maianne {
 
                         fs.writeFileSync(outputFile, fileContents)
                     }
+                } elseif (replaceGivenPattern) {
+                    // Get the file without extension.
+                    fileName = inputFile.split(".")
+                    fileName = fileName.shift()
+
+                    // Get the file name extension.
+                    fileExtension = inputFile.split(".")
+                    fileExtension = fileExtension.pop()
+                    
+                    if (outputFile == "") {
+                        outputFile = fileName + "-replaced." + fileExtension
+                    }
+
+                    inputData = system.loadCSV(inputFile, linesToSkip, separator, true, false)
+                    outputData = this.replacePattern(inputData, patternString, replacementString, true)
+
+                    fileContents = system.createCSV(outputData, separator)
+                    
+                    fs.writeFileSync(outputFile, fileContents)
+                } elseif (splitFile) {
+                    // Get the file without extension.
+                    fileName = inputFile.split(".")
+                    fileName = fileName.shift()
+
+                    // Get the file name extension.
+                    fileExtension = inputFile.split(".")
+                    fileExtension = fileExtension.pop()
+                    
+                    
+                    inputData = system.loadCSV(inputFile, linesToSkip, separator, true, false)
+                    outputData = this.splitData(inputData, nFirst)
+
+                    outputFile1 = fileName + "-" + core.toString(outputData.part1.length) + "." + fileExtension
+                    outputFile2 = fileName + "-" + core.toString(outputData.part2.length) + "." + fileExtension
+
+                    fileContents1 = system.createCSV(outputData.part1, separator)
+                    fileContents2 = system.createCSV(outputData.part2, separator)
+                    
+                    fs.writeFileSync(outputFile1, fileContents1)
+                    fs.writeFileSync(outputFile2, fileContents2)
                 } elseif (normalizeData) {
                     // Get the file without extension.
                     fileName = inputFile.split(".")
@@ -456,10 +589,11 @@ namespace maianne {
                     // Saves the report file.
                     reportFileContents = ""
                     reportFileContents = reportFileContents + "Average: " + core.toString(avgData.average) + "\n"
-                    reportFileContents = reportFileContents + "Deviation: " + core.toString(avgData.deviation) + "\n"
-                    reportFileContents = reportFileContents + "Minimum: "  + core.toString(avgData.minimum) + "\n"
-                    reportFileContents = reportFileContents + "Maximum: "  + core.toString(avgData.maximum) + "\n"
-                    reportFileContents = reportFileContents + "Events: "  + core.toString(avgData.n) + "\n"
+                    reportFileContents = reportFileContents + "Standard deviation: " + core.toString(avgData.deviation) + "\n"
+                    reportFileContents = reportFileContents + "Standard error: " + core.toString(avgData.error) + "\n"
+                    reportFileContents = reportFileContents + "Minimum value: "  + core.toString(avgData.minimum) + "\n"
+                    reportFileContents = reportFileContents + "Maximum value: "  + core.toString(avgData.maximum) + "\n"
+                    reportFileContents = reportFileContents + "Observations: "  + core.toString(avgData.n) + "\n"
                     
                     if (reportFile == "") {
                         reportFile = fileName + "-report.txt"
