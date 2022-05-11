@@ -30,6 +30,26 @@ namespace maianne {
     cnaLibrary = this.scriptPath + "/maia/cna/cna.maia"
     
     ///
+    /// Creates a new time series containing only the specified column.
+    /// @method getNextSteps
+    /// @memberof maianne
+    /// @param {object}   data - The time series.
+    /// @param {number}   columnNumber - columnNumber.
+    /// @return {object}  Returns a new time series containing only the specified column.
+    ///
+    function getColumn(data, columnNumber) {
+        newSeriesData = []
+
+        for (i = 0; i < data.length; i = i + 1) {
+            x = data[i, columnNumber]
+
+            newSeriesData.push([x])
+        }
+
+        return(newSeriesData)
+    }
+
+    ///
     /// Replaces a given pattern in a time series.
     /// @method replacePattern
     /// @memberof maianne
@@ -206,6 +226,33 @@ namespace maianne {
         return(denormalizedData)
     }
 
+    ///
+    /// Creates a new series containing the next steps for each value of the given series.
+    /// @method getNextSteps
+    /// @memberof maianne
+    /// @param {object}   data - The time series.
+    /// @param {number}   steps - Number of next steps.
+    /// @return {object}  Returns a new series containing the next steps for each value of the given series.
+    ///
+    function getNextSteps(data, steps) {
+        nextStepData = []
+
+        for (i = 0; i < data.length - steps; i = i + 1) {
+            row = []
+            for (j = i; j < i + steps; j = j + 1) {
+                x = data[j, 0]
+                if (core.type(x) == "number") {
+                    row.push(x)
+                }
+            }
+            if (row.length > 0) {
+                nextStepData.push(row)
+            }
+        }
+
+        return(nextStepData)
+    }
+
     /// Starts the application and processes the data passed as command line arguments.
     /// @method run
     /// @memberof maianne
@@ -276,15 +323,19 @@ namespace maianne {
             indexFrom = 1
             indexTo = 1
             indexIn = 1
+            separateColumn = false
+            columnNumber = 0
+            replaceGivenPattern = false
             patternString = ""
             replacementString = ""
-            replaceGivenPattern = false
             splitFile = false
             nFirst = 1
             normalizeData = false
             denormalizeData = false
             minimum = ""
             maximum = ""
+            nextStep = false
+            steps = 1
 
             // Get command line arguments.
             if (system.argc > 1) {
@@ -332,6 +383,7 @@ namespace maianne {
                         system.log("       --from               First file index for multiple neural network files.")
                         system.log("       --to                 Last file index for multiple neural network files.")
                         system.log("       --in                 Total number of files in the file set.")
+                        system.log("       --column             Creates a new time series containing only the specified column.")
                         system.log("       --replace            Replace lines whit pattern in a time series with a given value.")
                         system.log("       --with               Replacement value for the given pattern.")
                         system.log("       --split              Split a file into two parts.")
@@ -340,6 +392,8 @@ namespace maianne {
                         system.log("       --denormalize        Denormalizes a time series.")
                         system.log("       --minimum            The minimum value of the time series.")
                         system.log("       --maximum            The maximum value of the time series.")
+                        system.log("       --nextstep           Creates a new series containing the next steps for each value of the given series.")
+                        system.log("       --steps              Number of next steps.")
                         process.exit(0)
                     } elseif (system.argv[i] == "-i") {
                         i = i + 1
@@ -447,6 +501,10 @@ namespace maianne {
                     } elseif (system.argv[i] == "--in") {
                         i = i + 1
                         indexIn = core.toNumber(system.argv[i])
+                    } elseif (system.argv[i] == "--column") {
+                        i = i + 1
+                        columnNumber = system.argv[i]
+                        separateColumn = true
                     } elseif (system.argv[i] == "--replace") {
                         i = i + 1
                         patternString = system.argv[i]
@@ -469,6 +527,11 @@ namespace maianne {
                     } elseif (system.argv[i] == "--maximum") {
                         i = i + 1
                         maximum = core.toNumber(system.argv[i])
+                    } elseif (system.argv[i] == "--nextstep") {
+                        nextStep = true
+                    } elseif (system.argv[i] == "--steps") {
+                        i = i + 1
+                        steps = core.toNumber(system.argv[i])
                     } else {
                         annFile = system.argv[i]
                         break
@@ -525,6 +588,25 @@ namespace maianne {
 
                         fs.writeFileSync(outputFile, fileContents)
                     }
+                } elseif (separateColumn) {
+                    // Get the file without extension.
+                    fileName = inputFile.split(".")
+                    fileName = fileName.shift()
+
+                    // Get the file name extension.
+                    fileExtension = inputFile.split(".")
+                    fileExtension = fileExtension.pop()
+                    
+                    if (outputFile == "") {
+                        outputFile = fileName + "-column-" + core.toString(columnNumber) + "." + fileExtension
+                    }
+
+                    inputData = system.loadCSV(inputFile, linesToSkip, separator, true, true)
+                    outputData = this.getColumn(inputData, columnNumber)
+
+                    fileContents = system.createCSV(outputData, separator)
+
+                    fs.writeFileSync(outputFile, fileContents)
                 } elseif (replaceGivenPattern) {
                     // Get the file without extension.
                     fileName = inputFile.split(".")
@@ -620,6 +702,25 @@ namespace maianne {
 
                     inputData = system.loadCSV(inputFile, linesToSkip, separator, true, true)
                     outputData = this.denormalize(inputData, minimum, maximum)
+
+                    fileContents = system.createCSV(outputData, separator)
+
+                    fs.writeFileSync(outputFile, fileContents)
+                } elseif (nextStep) {
+                    // Get the file without extension.
+                    fileName = inputFile.split(".")
+                    fileName = fileName.shift()
+
+                    // Get the file name extension.
+                    fileExtension = inputFile.split(".")
+                    fileExtension = fileExtension.pop()
+                    
+                    if (outputFile == "") {
+                        outputFile = fileName + "-steps." + fileExtension
+                    }
+
+                    inputData = system.loadCSV(inputFile, linesToSkip, separator, true, true)
+                    outputData = this.getNextSteps(inputData, steps)
 
                     fileContents = system.createCSV(outputData, separator)
 

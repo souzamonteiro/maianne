@@ -11,3 +11,6 @@
 #./bin/maianne.maia --split --nfirst 700 -i test/BRASILIA_A001_2021-06-01_2021-12-31-Radiation-replaced-normalized-1000.csv
 #./bin/maianne.maia --split --nfirst 1000 -i test/BRASILIA_A001_2021-06-01_2021-12-31-Temperature-normalized.csv
 #./bin/maianne.maia --split --nfirst 700 -i test/BRASILIA_A001_2021-06-01_2021-12-31-Temperature-normalized-1000.csv
+#./bin/maianne.maia --nextstep --steps 5 -i test/BRASILIA_A001_2021-06-01_2021-12-31-Radiation-replaced-normalized-1000-700.csv
+#./bin/maianne.maia --nextstep --steps 5 -i test/BRASILIA_A001_2021-06-01_2021-12-31-Temperature-normalized-1000-700.csv
+#./bin/maianne.maia --column 8 -i "test/BRASILIA_A001_2021-06-01_2021-12-31.csv"
