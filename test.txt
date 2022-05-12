@@ -1,3 +1,0 @@
-Passou 1
-Passou 2
-Cannot read properties of undefined (reading 'toString')
