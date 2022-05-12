@@ -17,9 +17,9 @@
     "bugs": {
         "url": "https://github.com/souzamonteiro/maianne/issues"
     },
-    "main": "bin/maianne.js",
+    "main": "bin/maianne.maia",
     "bin": {
-        "maiascript": "./bin/maianne.js"
+        "maianne": "./bin/maianne.maia"
     },
     "dependencies": {
         "maiascript-cli": "^3.8.4"
