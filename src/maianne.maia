@@ -749,7 +749,6 @@ namespace maianne {
                                     // Read the file contents.
                                     fileContents = readFile(file)
 
-                                    // Do something...
                                     property = {
                                         "adj": [],
                                         "n": 0,
@@ -798,16 +797,16 @@ namespace maianne {
 
                                         // Trains the neural network.
                                         startTime := Date()
-                                        correctness = ann.training(property.adj, itsData, otsData, lRate, af, oaf, of, ofc, maxEpochs, minimumCorrectness, trainingCallback, 100)
 
-                                        //correctness = ann.training(property.adj, itsData, otsData, lRate, af, oaf, of, ofc, maxEpochs, minimumCorrectness, trainingCallback, interval)
+                                        correctness = ann.training(property.adj, itsData, otsData, lRate, af, oaf, of, ofc, maxEpochs, minimumCorrectness, trainingCallback, interval)
+                                        
                                         endTime := Date()
                                         elapsedTime = endTime - startTime
 
                                         // Saves the trained network.
                                         trainedAnn = ann.reduce(property.adj)
                                         cna.setLabels(trainedAnn, property.networkLabel)
-                                        
+
                                         trainedAnnFileContents = cna.createPajekFile(trainedAnn, "arcs")
 
                                         // Sets the output file.
