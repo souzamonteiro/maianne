@@ -783,30 +783,27 @@ namespace maianne {
                                         process.exit()
                                     }
                                     
+                                    // Assigns random starting weights to neural synapses.
+                                    if (prepare) {
+                                        property.adj = ann.prepare(property.adj, true, allowLoops, negativeWeights)
+                                    } else {
+                                        property.adj = ann.prepare(property.adj, false, allowLoops, negativeWeights)
+                                    }
+
                                     if ((itsFile != "") && (otsFile != "")) {
                                         // Reads the train set.
                                         itsData = system.loadCSV(itsFile, linesToSkip, separator, true, true)
                                         otsData = system.loadCSV(otsFile, linesToSkip, separator, true, true)
 
-                                        // Assigns random starting weights to neural synapses.
-                                        if (prepare) {
-                                            property.adj = ann.prepare(property.adj, true, allowLoops, negativeWeights)
-                                        } else {
-                                            property.adj = ann.prepare(property.adj, false, allowLoops, negativeWeights)
-                                        }
-
                                         // Trains the neural network.
                                         startTime := Date()
-
                                         correctness = ann.training(property.adj, itsData, otsData, lRate, af, oaf, of, ofc, maxEpochs, minimumCorrectness, trainingCallback, interval)
-                                        
                                         endTime := Date()
                                         elapsedTime = endTime - startTime
 
                                         // Saves the trained network.
                                         trainedAnn = ann.reduce(property.adj)
                                         cna.setLabels(trainedAnn, property.networkLabel)
-
                                         trainedAnnFileContents = cna.createPajekFile(trainedAnn, "arcs")
 
                                         // Sets the output file.
@@ -842,7 +839,7 @@ namespace maianne {
 
                                         fs.writeFileSync(reportFile, reportFileContents)
                                     }
-
+                                    
                                     // Uses the trained network to process the input data.
                                     if (inputFile != "") {
                                         inputData = system.loadCSV(inputFile, linesToSkip, separator, true, true)
