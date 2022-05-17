@@ -73,6 +73,16 @@
 #./bin/maianne.maia --denormalize -i test/Wind_speed-ann-trained-output.csv --minimum 0.1 --maximum 6.5
 #./bin/maianne.maia --denormalize -i test/Wind_speed-test-out.csv --minimum 0.1 --maximum 6.5
 
+#./bin/maianne.maia --create --topology mlp --ni 5 --no 1 --nl 2 --nhu 10 -o test/Wind_speed-5-steps-ann.net
+#cp test/Wind_speed-train-in.csv test/Wind_speed-5-steps-train-in.csv
+#cp test/Wind_speed-train-out.csv test/Wind_speed-5-steps-train-out.csv
+#cp test/Wind_speed-test-in.csv test/Wind_speed-5-steps-test-in.csv
+#cp test/Wind_speed-test-out.csv test/Wind_speed-5-steps-test-out.csv
+#./bin/maianne.maia --its test/Wind_speed-5-steps-train-in.csv --ots test/Wind_speed-5-steps-train-out.csv --lrate 0.005 --af tanh --oaf linear --of none --ofc "[1, 0]" --loops --prepare --nw --epochs 2000 --correct 0.001 --interval 100 test/Wind_speed-5-steps-ann.net
+#./bin/maianne.maia -i test/Wind_speed-5-steps-test-in.csv --ni 5 --no 1 --lrate 0.005 --af tanh --oaf linear --of none --ofc "[1, 0]" --loops --steps 5 test/Wind_speed-5-steps-ann-trained.net
+#./bin/maianne.maia --denormalize -i test/Wind_speed-5-steps-ann-trained-output.csv --minimum 1787.510742 --maximum 4812.087402
+#./bin/maianne.maia --denormalize -i test/Wind_speed-5-steps-test-out.csv --minimum 1787.510742 --maximum 4812.087402
+
 #./bin/maianne.maia --create --topology mlp --ni 5 --no 1 --nl 2 --nhu 10 -o test/Wind_direction-ann.net
 #sed '$ d' test/BRASILIA_A001_2021-06-01_2021-12-31-Wind_direction-normalized-1000-700-steps.csv > test/Wind_direction-train-in.csv
 #sed '1,5d' test/BRASILIA_A001_2021-06-01_2021-12-31-Wind_direction-normalized-1000-700.csv > test/Wind_direction-train-out.csv
@@ -105,6 +115,16 @@
 #./bin/maianne.maia --denormalize -i test/BTC-USD-ann-trained-output.csv --minimum 28936.355469 --maximum 67566.828125
 #./bin/maianne.maia --denormalize -i test/BTC-USD-test-out.csv --minimum 28936.355469 --maximum 67566.828125
 
+#./bin/maianne.maia --create --topology mlp --ni 5 --no 1 --nl 2 --nhu 10 -o test/BTC-USD-5-steps-ann.net
+#cp test/BTC-USD-train-in.csv test/BTC-USD-5-steps-train-in.csv
+#cp test/BTC-USD-train-out.csv test/BTC-USD-5-steps-train-out.csv
+#cp test/BTC-USD-test-in.csv test/BTC-USD-5-steps-test-in.csv
+#cp test/BTC-USD-test-out.csv test/BTC-USD-5-steps-test-out.csv
+#./bin/maianne.maia --its test/BTC-USD-5-steps-train-in.csv --ots test/BTC-USD-5-steps-train-out.csv --lrate 0.005 --af tanh --oaf linear --of none --ofc "[1, 0]" --loops --prepare --nw --epochs 2000 --correct 0.001 --interval 100 test/BTC-USD-5-steps-ann.net
+#./bin/maianne.maia -i test/BTC-USD-5-steps-test-in.csv --ni 5 --no 1 --lrate 0.005 --af tanh --oaf linear --of none --ofc "[1, 0]" --loops --steps 5 test/BTC-USD-5-steps-ann-trained.net
+#./bin/maianne.maia --denormalize -i test/BTC-USD-5-steps-ann-trained-output.csv --minimum 28936.355469 --maximum 67566.828125
+#./bin/maianne.maia --denormalize -i test/BTC-USD-5-steps-test-out.csv --minimum 28936.355469 --maximum 67566.828125
+
 #./bin/maianne.maia --column 4 -i "test/ETH-USD.csv"
 #sed '1,1d' test/ETH-USD-column-4.csv > test/ETH-USD-Close.csv
 #./bin/maianne.maia --normalize -i test/ETH-USD-Close.csv
@@ -122,3 +142,46 @@
 #./bin/maianne.maia -i test/ETH-USD-test-in.csv --ni 5 --no 1 --lrate 0.005 --af tanh --oaf linear --of none --ofc "[1, 0]" --loops test/ETH-USD-ann-trained.net
 #./bin/maianne.maia --denormalize -i test/ETH-USD-ann-trained-output.csv --minimum 1787.510742 --maximum 4812.087402
 #./bin/maianne.maia --denormalize -i test/ETH-USD-test-out.csv --minimum 1787.510742 --maximum 4812.087402
+
+#./bin/maianne.maia --create --topology mlp --ni 5 --no 1 --nl 2 --nhu 10 -o test/ETH-USD-5-steps-ann.net
+#cp test/ETH-USD-train-in.csv test/ETH-USD-5-steps-train-in.csv
+#cp test/ETH-USD-train-out.csv test/ETH-USD-5-steps-train-out.csv
+#cp test/ETH-USD-test-in.csv test/ETH-USD-5-steps-test-in.csv
+#cp test/ETH-USD-test-out.csv test/ETH-USD-5-steps-test-out.csv
+#./bin/maianne.maia --its test/ETH-USD-5-steps-train-in.csv --ots test/ETH-USD-5-steps-train-out.csv --lrate 0.005 --af tanh --oaf linear --of none --ofc "[1, 0]" --loops --prepare --nw --epochs 2000 --correct 0.001 --interval 100 test/ETH-USD-5-steps-ann.net
+#./bin/maianne.maia -i test/ETH-USD-5-steps-test-in.csv --ni 5 --no 1 --lrate 0.005 --af tanh --oaf linear --of none --ofc "[1, 0]" --loops --steps 5 test/ETH-USD-5-steps-ann-trained.net
+#./bin/maianne.maia --denormalize -i test/ETH-USD-5-steps-ann-trained-output.csv --minimum 1787.510742 --maximum 4812.087402
+#./bin/maianne.maia --denormalize -i test/ETH-USD-5-steps-test-out.csv --minimum 1787.510742 --maximum 4812.087402
+
+# ./bin/maianne.maia --column 4 -i "test/ADA-USD.csv"
+# sed '1,1d' test/ADA-USD-column-4.csv > test/ADA-USD-Close.csv
+
+# ./bin/maianne.maia --column 4 -i "test/BNB-USD.csv"
+# sed '1,1d' test/BNB-USD-column-4.csv > test/BNB-USD-Close.csv
+
+# ./bin/maianne.maia --column 4 -i "test/BTC-USD.csv"
+# sed '1,1d' test/BTC-USD-column-4.csv > test/BTC-USD-Close.csv
+
+# ./bin/maianne.maia --column 4 -i "test/BUSD-USD.csv"
+# sed '1,1d' test/BUSD-USD-column-4.csv > test/BUSD-USD-Close.csv
+
+# ./bin/maianne.maia --column 4 -i "test/DOGE-USD.csv"
+# sed '1,1d' test/DOGE-USD-column-4.csv > test/DOGE-USD-Close.csv
+
+# ./bin/maianne.maia --column 4 -i "test/ETH-USD.csv"
+# sed '1,1d' test/ETH-USD-column-4.csv > test/ETH-USD-Close.csv
+
+# ./bin/maianne.maia --column 4 -i "test/HEX-USD.csv"
+# sed '1,1d' test/HEX-USD-column-4.csv > test/HEX-USD-Close.csv
+
+# ./bin/maianne.maia --column 4 -i "test/SOL-USD.csv"
+# sed '1,1d' test/SOL-USD-column-4.csv > test/SOL-USD-Close.csv
+
+# ./bin/maianne.maia --column 4 -i "test/USDC-USD.csv"
+# sed '1,1d' test/USDC-USD-column-4.csv > test/USDC-USD-Close.csv
+
+# ./bin/maianne.maia --column 4 -i "test/USDT-USD.csv"
+# sed '1,1d' test/USDT-USD-column-4.csv > test/USDT-USD-Close.csv
+
+# ./bin/maianne.maia --column 4 -i "test/XRP-USD.csv"
+# sed '1,1d' test/XRP-USD-column-4.csv > test/XRP-USD-Close.csv

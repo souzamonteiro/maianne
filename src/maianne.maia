@@ -845,10 +845,22 @@ namespace maianne {
                                         inputData = system.loadCSV(inputFile, linesToSkip, separator, true, true)
                                         outputData = []
 
-                                        for (indexData = 0; indexData < inputData.length; indexData = indexData + 1) {
-                                            inData = inputData[indexData]
-                                            outData = ann.think(property.adj, inData, ni, no, af, oaf, of, ofc)
-                                            outputData.push(outData)
+                                        if (steps > 1) {
+                                            for (indexData = 0; indexData < inputData.length - steps; indexData = indexData + steps) {
+                                                inData = inputData[indexData]
+                                                for (indexStep = 0; indexStep < steps; indexStep = indexStep + 1) {
+                                                    outData = ann.think(property.adj, inData, ni, no, af, oaf, of, ofc)
+                                                    outputData.push(outData)
+                                                    inData.shift()
+                                                    inData.push(outData)
+                                                }
+                                            }
+                                        } else {
+                                            for (indexData = 0; indexData < inputData.length; indexData = indexData + 1) {
+                                                inData = inputData[indexData]
+                                                outData = ann.think(property.adj, inData, ni, no, af, oaf, of, ofc)
+                                                outputData.push(outData)
+                                            }
                                         }
 
                                         outputFileContents = system.createCSV(outputData, separator)

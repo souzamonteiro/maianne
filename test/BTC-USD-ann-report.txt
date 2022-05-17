@@ -1,4 +1,4 @@
 Epochs: 2000
-RSS: 0.3707114107289804
+RSS: 0.49524771670984635
 Correctness: 0
-Elapsed Time: 18140
+Elapsed Time: 10839
