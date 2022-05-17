@@ -1,0 +1,4 @@
+Epochs: 2000
+RSS: 2.9089610857473565
+Correctness: 0
+Elapsed Time: 42544

@@ -782,7 +782,7 @@ namespace maianne {
                                         system.log("Unsupported file format when processing file " + file + "")
                                         process.exit()
                                     }
-                                    
+
                                     // Assigns random starting weights to neural synapses.
                                     if (prepare) {
                                         property.adj = ann.prepare(property.adj, true, allowLoops, negativeWeights)
