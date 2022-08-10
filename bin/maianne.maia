@@ -871,6 +871,8 @@ namespace maianne {
                                         }
 
                                         fs.writeFileSync(outputFile, outputFileContents)
+
+                                        outputFile = ""
                                     }
                                 }
                             }
