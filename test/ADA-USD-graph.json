@@ -1,0 +1,29 @@
+data1 = core.matrixToArray(system.loadCSV("test/ADA-USD-Close-output-testing.csv", 0, ",", true, true))
+data2 = core.matrixToArray(system.loadCSV("test/ADA-USD-Close-trained-output.csv", 0, ",", true, true))
+config = {
+    "type": "line",
+    "data": {
+        "labels": Array.from(Array(data1.length).keys()),
+        "datasets": [
+            {
+                "label": "Real",
+                "data": data1,
+                "borderColor": "red",
+                "backgroundColor": "red"
+            },
+            {
+                "label": "Prediction",
+                "data": data2,
+                "borderColor": "blue",
+                "backgroundColor": "blue"
+            }
+        ]
+    },
+    "options": {
+        "scales": {
+            "x": {
+                "type": "linear"
+            }
+        }
+    }
+}

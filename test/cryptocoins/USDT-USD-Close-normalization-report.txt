@@ -1,0 +1,6 @@
+Average: 1.0003564617486342
+Standard deviation: 0.0005281213708936522
+Standard error: 0.000027605346278476905
+Minimum value: 0.995872
+Maximum value: 1.001888
+Observations: 366
