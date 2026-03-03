@@ -800,30 +800,51 @@ namespace maianne {
                                         inputData = system.loadCSV(inputFile, linesToSkip, separator, true, true)
                                         outputData = []
 
-                                        if (steps > 1) {
-                                            for (indexData = 0; indexData < inputData.length - steps; indexData = indexData + steps) {
-                                                inData = inputData[indexData]
+                                        for (indexData = 0; indexData < inputData.length; indexData = indexData + 1) {
+                                            // Get the input row and initialize prediction data
+                                            row = inputData[indexData]
+                                            originalRow = row.slice()
+                                            inData = row.slice()
+                                            predictedSteps = []
+                                            
+                                            // Predict 'steps' number of future values
+                                            if (inData[0] != null) {
                                                 for (indexStep = 0; indexStep < steps; indexStep = indexStep + 1) {
                                                     outData = ann.think(property.adj, inData, ni, no, af, oaf, of, ofc)
-                                                    outputData.push(outData)
+                                                    predictedSteps.push(outData)
+                                                    // Shift and update: remove first element, add prediction
                                                     inData.shift()
                                                     inData.push(outData)
                                                 }
-                                            }
-                                        } else {
-                                            for (indexData = 0; indexData < inputData.length; indexData = indexData + 1) {
-                                                inData = inputData[indexData]
-                                                outData = ann.think(property.adj, inData, ni, no, af, oaf, of, ofc)
-                                                outputData.push(outData)
+                                                //console.log(predictedSteps)
+                                            
+                                                // Concatenate original data with predicted steps
+                                                previousSteps = []
+                                                for (colIndex = 0; colIndex < originalRow.length; colIndex = colIndex + 1) {
+                                                    previousSteps.push([originalRow[colIndex]])
+                                                }
+                                                //console.log(previousSteps)
+                                                
+                                                combinedRow = previousSteps.concat(predictedSteps)
+                                                outputData.push(combinedRow)
                                             }
                                         }
 
-                                        outputFileContents = system.createCSV(outputData, separator)
-
+                                        //console.log("outputData: " + JSON.stringify(outputData))
+                                        outputFileContents = ""
+                                        for (rowIndex = 0; rowIndex < outputData.length; rowIndex = rowIndex + 1) {
+                                            thisRow = outputData[rowIndex]
+                                            for (colIndex = 0; colIndex < thisRow.length; colIndex = colIndex + 1) {
+                                                outputFileContents = outputFileContents + thisRow[colIndex, 0] + "\n"
+                                            }
+                                        }
+                                        //console.log("outputFileContents: " + outputFileContents)
+                                        
                                         // Sets the output file.
                                         if (outputFile == "") {
                                             outputFile = fileName + "-output.csv"
                                         }
+                                        //console.log("outputFile: " + outputFile)
 
                                         fs.writeFileSync(outputFile, outputFileContents)
 
