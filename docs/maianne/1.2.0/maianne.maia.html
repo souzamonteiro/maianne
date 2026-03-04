@@ -828,55 +828,47 @@ namespace maianne {
                                         inputData = system.loadCSV(inputFile, linesToSkip, separator, true, true)
                                         outputData = []
 
-                                        for (indexData = 0; indexData &lt; inputData.length; indexData = indexData + 1) {
-                                            // Get the input row and initialize prediction data
-                                            row = inputData[indexData]
-                                            originalRow = row.slice()
-                                            inData = row.slice()
-                                            predictedSteps = []
-                                            
-                                            // Predict 'steps' number of future values
-                                            if (inData[0] != null) {
-                                                for (indexStep = 0; indexStep &lt; steps; indexStep = indexStep + 1) {
-                                                    outData = ann.think(property.adj, inData, ni, no, af, oaf, of, ofc)
-                                                    predictedSteps.push(outData)
-                                                    // Shift and update: remove first element, add prediction
-                                                    inData.shift()
-                                                    inData.push(outData)
+                                        if (steps == 1) {
+                                            // Uses the trained network to process the input data.
+                                            for (indexData = 0; indexData &lt; inputData.length; indexData = indexData + 1) {
+                                                inData = inputData[indexData]
+                                                if (inData != null) {
+                                                    if (inData[0] != null) {
+                                                        outData = ann.think(property.adj, inData, ni, no, af, oaf, of, ofc)
+                                                        outputData.push(outData)
+                                                    }
                                                 }
-                                                //console.log(predictedSteps)
-                                            
-                                                // Concatenate original data with predicted steps
-                                                previousSteps = []
-                                                for (colIndex = 0; colIndex &lt; originalRow.length; colIndex = colIndex + 1) {
-                                                    previousSteps.push([originalRow[colIndex]])
-                                                }
-                                                //console.log(previousSteps)
+                                            }
+                                        } else {
+                                            for (indexData = 0; indexData &lt; inputData.length; indexData = indexData + 1) {
+                                                // Get the input row and initialize prediction data
+                                                row = inputData[indexData]
+                                                originalRow = row.slice()
+                                                inData = row.slice()
                                                 
-                                                combinedRow = previousSteps.concat(predictedSteps)
-                                                outputData.push(combinedRow)
+                                                // Predict 'steps' number of future values
+                                                if (inData != null) {
+                                                    if (inData[0] != null) {
+                                                        for (indexStep = 0; indexStep &lt; steps; indexStep = indexStep + 1) {
+                                                            outData = ann.think(property.adj, inData, ni, no, af, oaf, of, ofc)
+                                                            outputData.push(outData)
+                                                            // Shift and update: remove first element, add prediction
+                                                            inData.shift()
+                                                            inData.push(outData)
+                                                        }
+                                                    }
+                                                }
                                             }
                                         }
 
-                                        //console.log("outputData: " + JSON.stringify(outputData))
-                                        outputFileContents = ""
-                                        for (rowIndex = 0; rowIndex &lt; outputData.length; rowIndex = rowIndex + 1) {
-                                            thisRow = outputData[rowIndex]
-                                            for (colIndex = 0; colIndex &lt; thisRow.length; colIndex = colIndex + 1) {
-                                                outputFileContents = outputFileContents + thisRow[colIndex, 0] + "\n"
-                                            }
-                                        }
-                                        //console.log("outputFileContents: " + outputFileContents)
+                                        console.log("Input data:")
+                                        console.log(inputData)
+                                        console.log("Output data:")
+                                        console.log(outputData)
                                         
-                                        // Sets the output file.
-                                        if (outputFile == "") {
-                                            outputFile = fileName + "-output.csv"
-                                        }
-                                        //console.log("outputFile: " + outputFile)
-
+                                        outputFileContents = system.createCSV(outputData, separator)
+                                        outputFile = fileName + "-ann-output.csv"
                                         fs.writeFileSync(outputFile, outputFileContents)
-
-                                        outputFile = ""
                                     }
                                 }
                             }
@@ -919,7 +911,7 @@ if (core.type(process) != "undefined") {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Tue Mar 03 2026 19:06:16 GMT-0300 (Brasilia Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Wed Mar 04 2026 16:37:29 GMT-0300 (Brasilia Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>
