@@ -845,9 +845,11 @@ namespace maianne {
                                         //console.log(outputData)
                                         
                                         outputFileContents = system.createCSV(outputData, separator)
-                                        outputFile = fileName + "-ann-output.csv"
+                                        outputFile = fileName + "-output.csv"
                                         //console.log("Output CSV data:")
                                         //console.log(outputFileContents)
+                                        //console.log("Output CSV file name:")
+                                        //console.log(outputFile)
                                         
                                         fs.writeFileSync(outputFile, outputFileContents)
                                     }
